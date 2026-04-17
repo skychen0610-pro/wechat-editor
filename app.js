@@ -889,29 +889,33 @@ const CopyManager = {
             'word-break:break-word',
         ].join(';');
 
-        // 方案：使用多层 div 嵌套，每层都设置背景色
-        // 这是为了确保微信编辑器不会覆盖背景色
-        const outerDivStyle = `background-color:${bgColor};max-width:677px;margin:0 auto;`;
-        const innerDivStyle = `background-color:${bgColor};padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;`;
+        // 方案：使用 !important 强制背景色 + 微信特殊处理
+        // 微信编辑器可能会覆盖背景色，使用 !important 强制
+        const wrapperStyle = `display:block;width:100%;max-width:677px;margin:0 auto;padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background:${bgColor} !important;background-color:${bgColor} !important;`;
         
         // 获取内联后的内容
         let contentHtml = inlined.innerHTML;
         
-        // 为所有块级元素添加背景色
-        const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'blockquote', 'ul', 'ol', 'pre', 'div'];
-        blockElements.forEach(tag => {
-            const regex = new RegExp(`<${tag}([^>]*)>`, 'gi');
-            contentHtml = contentHtml.replace(regex, (match, attrs) => {
-                if (attrs.includes('background-color')) return match;
-                if (attrs.includes('style="')) {
-                    return `<${tag}${attrs.replace(/style="/, `style="background-color:${bgColor};`)}>`;
-                } else {
-                    return `<${tag}${attrs} style="background-color:${bgColor};">`;
-                }
-            });
-        });
+        // 为所有元素添加背景色（使用 !important）
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = contentHtml;
         
-        return `<div style="${outerDivStyle}"><div style="${innerDivStyle}">${contentHtml}</div></div>`;
+        const addBgToAll = (element) => {
+            if (element.nodeType === Node.ELEMENT_NODE) {
+                const currentStyle = element.getAttribute('style') || '';
+                // 移除已有的 background-color，然后添加 !important 版本
+                const cleanStyle = currentStyle.replace(/background[^:]*:[^;]+;?/gi, '');
+                element.setAttribute('style', `background:${bgColor} !important;background-color:${bgColor} !important;${cleanStyle}`);
+                // 递归处理子元素
+                Array.from(element.children).forEach(addBgToAll);
+            }
+        };
+        
+        Array.from(tempDiv.children).forEach(addBgToAll);
+        contentHtml = tempDiv.innerHTML;
+        
+        // 使用 div 包装（section 在微信中可能被转换）
+        return `<div style="${wrapperStyle}">${contentHtml}</div>`;
     },
 
     async copyToWechat() {
