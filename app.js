@@ -889,7 +889,7 @@ const CopyManager = {
             'word-break:break-word',
         ].join(';');
 
-        // 方案：使用 pre 标签包裹（微信对 pre 的背景色支持最好）
+        // 方案：使用 section 标签 + 微信特定属性
         const hexToRgb = (hex) => {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
@@ -897,8 +897,8 @@ const CopyManager = {
         
         const rgbBgColor = hexToRgb(bgColor);
         
-        // pre 标签样式 - 微信编辑器对 pre 的背景色支持最好
-        const preStyle = `display:block;width:100%;max-width:677px;margin:0 auto;padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background-color:${rgbBgColor};border:none;border-radius:0;white-space:normal;`;
+        // section 标签样式
+        const sectionStyle = `display:block;width:100%;max-width:677px;margin:0 auto;padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background-color:${rgbBgColor};`;
         
         // 获取内联后的内容
         let contentHtml = inlined.innerHTML;
@@ -923,8 +923,8 @@ const CopyManager = {
         Array.from(tempDiv.children).forEach(removeBgFromAll);
         contentHtml = tempDiv.innerHTML;
         
-        // 使用 pre 标签包裹内容
-        return `<pre style="${preStyle}">${contentHtml}</pre>`;
+        // 使用 section 标签包裹内容，添加 data-bg-color 属性作为备份
+        return `<section style="${sectionStyle}" data-bg-color="${rgbBgColor}">${contentHtml}</section>`;
     },
 
     async copyToWechat() {
@@ -963,7 +963,32 @@ const CopyManager = {
         // 用隐藏的 contenteditable div 写入 HTML 到剪贴板
         const div = document.createElement('div');
         div.contentEditable = 'true';
-        div.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+        // 关键：临时 div 也要设置背景色，确保复制时背景色不被丢失
+        const previewEl = document.getElementById('preview');
+        const themeClass = Array.from(previewEl.classList).find(c => c.startsWith('theme-'));
+        const themeBackgrounds = {
+            'theme-default': '#ffffff',
+            'theme-latepost': '#faf9f7',
+            'theme-tech': '#0F172A',
+            'theme-elegant': '#ffffff',
+            'theme-deep': '#1a1a1a',
+            'theme-ft': '#fffbf5',
+            'theme-nyt': '#ffffff',
+            'theme-guardian': '#f6f6f6',
+            'theme-nikkei': '#ffffff',
+            'theme-lemonde': '#fafafa',
+            'theme-claude': '#faf8f5',
+            'theme-medium': '#ffffff',
+            'theme-apple': '#f5f5f7',
+            'theme-jonyive': '#fafafa',
+            'theme-kenya': '#fefefe',
+            'theme-hische': '#fffbf0',
+            'theme-ando': '#f5f5f3',
+            'theme-gaudi': '#faf8f5',
+            'theme-burnt': '#FDF8F3',
+        };
+        const bgColor = themeBackgrounds[themeClass] || '#ffffff';
+        div.style.cssText = `position:fixed;top:-9999px;left:-9999px;opacity:0;background-color:${bgColor};`;
         div.innerHTML = html;
         document.body.appendChild(div);
 
