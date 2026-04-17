@@ -889,24 +889,28 @@ const CopyManager = {
             'word-break:break-word',
         ].join(';');
 
-        // 方案：使用 !important 强制背景色 + 微信特殊处理
-        // 微信编辑器可能会覆盖背景色，使用 !important 强制
-        const wrapperStyle = `display:block;width:100%;max-width:677px;margin:0 auto;padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background:${bgColor} !important;background-color:${bgColor} !important;`;
+        // 方案：将十六进制颜色转换为 RGB 格式（微信兼容性更好）
+        const hexToRgb = (hex) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
+        };
+        
+        const rgbBgColor = hexToRgb(bgColor);
+        
+        const wrapperStyle = `display:block;width:100%;max-width:677px;margin:0 auto;padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background-color:${rgbBgColor};`;
         
         // 获取内联后的内容
         let contentHtml = inlined.innerHTML;
         
-        // 为所有元素添加背景色（使用 !important）
+        // 为所有元素添加背景色
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = contentHtml;
         
         const addBgToAll = (element) => {
             if (element.nodeType === Node.ELEMENT_NODE) {
                 const currentStyle = element.getAttribute('style') || '';
-                // 移除已有的 background-color，然后添加 !important 版本
-                const cleanStyle = currentStyle.replace(/background[^:]*:[^;]+;?/gi, '');
-                element.setAttribute('style', `background:${bgColor} !important;background-color:${bgColor} !important;${cleanStyle}`);
-                // 递归处理子元素
+                const cleanStyle = currentStyle.replace(/background-color:[^;]+;?/gi, '');
+                element.setAttribute('style', `background-color:${rgbBgColor};${cleanStyle}`);
                 Array.from(element.children).forEach(addBgToAll);
             }
         };
@@ -914,7 +918,6 @@ const CopyManager = {
         Array.from(tempDiv.children).forEach(addBgToAll);
         contentHtml = tempDiv.innerHTML;
         
-        // 使用 div 包装（section 在微信中可能被转换）
         return `<div style="${wrapperStyle}">${contentHtml}</div>`;
     },
 
