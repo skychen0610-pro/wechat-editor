@@ -703,8 +703,9 @@ const CopyManager = {
     /**
      * 将 DOM 节点的计算样式内联到 style 属性
      * 只内联与默认样式有差异的关键属性，避免臃肿
+     * 特别处理背景色，确保深色主题正确显示
      */
-    inlineStyles(rootEl) {
+    inlineStyles(rootEl, themeBgColor) {
         // 克隆节点，不污染预览区
         const clone = rootEl.cloneNode(true);
 
@@ -724,19 +725,27 @@ const CopyManager = {
         const realElements = rootEl.querySelectorAll('*');
 
         // 处理根元素本身
-        this._inlineElement(rootEl, clone, baseline);
+        this._inlineElement(rootEl, clone, baseline, themeBgColor);
 
         realElements.forEach((realEl, i) => {
             const cloneEl = elements[i];
             if (cloneEl) {
-                this._inlineElement(realEl, cloneEl, baseline);
+                this._inlineElement(realEl, cloneEl, baseline, themeBgColor);
             }
         });
+
+        // 为克隆的根元素显式设置背景色（如果提供了主题背景色）
+        if (themeBgColor) {
+            const existingStyle = clone.getAttribute('style') || '';
+            if (!existingStyle.includes('background-color')) {
+                clone.setAttribute('style', existingStyle + `;background-color:${themeBgColor}`);
+            }
+        }
 
         return clone;
     },
 
-    _inlineElement(realEl, cloneEl, baseline) {
+    _inlineElement(realEl, cloneEl, baseline, themeBgColor) {
         const computed = window.getComputedStyle(realEl);
         const inlineStyles = [];
 
@@ -764,6 +773,20 @@ const CopyManager = {
         if (['h1', 'h2', 'h3'].includes(tagName)) {
             inlineStyles.push('white-space:nowrap');
             inlineStyles.push('overflow-wrap:normal');
+        }
+
+        // 背景色特殊处理：确保深色主题的背景色正确传递
+        const bgColor = computed.getPropertyValue('background-color');
+        const isRootElement = realEl.id === 'preview';
+        
+        if (isRootElement && themeBgColor) {
+            // 根元素使用主题背景色
+            inlineStyles.push(`background-color:${themeBgColor}`);
+        } else if (bgColor === 'transparent' || bgColor === 'rgba(0, 0, 0, 0)') {
+            // 如果元素背景是透明的，显式设置为透明，避免微信添加默认白色背景
+            if (!inlineStyles.some(s => s.startsWith('background-color:'))) {
+                inlineStyles.push('background-color:transparent');
+            }
         }
 
         if (inlineStyles.length > 0) {
@@ -833,32 +856,62 @@ const CopyManager = {
      * 生成适合微信公众号的 HTML
      * - 包装容器带基础字体/颜色
      * - 所有子元素样式内联
+     * - 背景色处理：使用 table 布局确保微信兼容性
      */
     buildWechatHtml() {
         const previewEl = document.getElementById('preview');
 
-        // 内联样式
-        const inlined = this.inlineStyles(previewEl);
+        // 获取主题背景色（优先从映射表读取，确保深色主题正确）
+        const bgColor = this.getThemeBackgroundColor();
+        
+        // 内联样式，传入主题背景色
+        const inlined = this.inlineStyles(previewEl, bgColor);
 
         // 获取容器自身的计算样式作为包装器基础样式
         const cs = window.getComputedStyle(previewEl);
         
-        // 获取主题背景色（优先从映射表读取，确保深色主题正确）
-        const bgColor = this.getThemeBackgroundColor();
+        // 方案1：使用 table 布局（微信兼容性最好）
+        // table 的背景色在微信编辑器中通常能正确显示
+        const tableStyle = [
+            'width:100%',
+            'max-width:677px',
+            `background-color:${bgColor}`,
+            'border-collapse:collapse',
+            'margin:0 auto',
+        ].join(';');
         
-        const wrapStyle = [
+        const cellStyle = [
             `font-family:${cs.getPropertyValue('font-family')}`,
             `font-size:${cs.getPropertyValue('font-size')}`,
             `color:${cs.getPropertyValue('color')}`,
             `line-height:${cs.getPropertyValue('line-height')}`,
-            `background-color:${bgColor}`,
-            'max-width:677px',
-            'margin:0 auto',
             'padding:24px',
             'word-break:break-word',
         ].join(';');
 
-        return `<section style="${wrapStyle}">${inlined.innerHTML}</section>`;
+        // 方案：使用多层 div 嵌套，每层都设置背景色
+        // 这是为了确保微信编辑器不会覆盖背景色
+        const outerDivStyle = `background-color:${bgColor};max-width:677px;margin:0 auto;`;
+        const innerDivStyle = `background-color:${bgColor};padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;`;
+        
+        // 获取内联后的内容
+        let contentHtml = inlined.innerHTML;
+        
+        // 为所有块级元素添加背景色
+        const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'blockquote', 'ul', 'ol', 'pre', 'div'];
+        blockElements.forEach(tag => {
+            const regex = new RegExp(`<${tag}([^>]*)>`, 'gi');
+            contentHtml = contentHtml.replace(regex, (match, attrs) => {
+                if (attrs.includes('background-color')) return match;
+                if (attrs.includes('style="')) {
+                    return `<${tag}${attrs.replace(/style="/, `style="background-color:${bgColor};`)}>`;
+                } else {
+                    return `<${tag}${attrs} style="background-color:${bgColor};">`;
+                }
+            });
+        });
+        
+        return `<div style="${outerDivStyle}"><div style="${innerDivStyle}">${contentHtml}</div></div>`;
     },
 
     async copyToWechat() {
