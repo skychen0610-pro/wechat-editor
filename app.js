@@ -897,25 +897,32 @@ const CopyManager = {
         
         const rgbBgColor = hexToRgb(bgColor);
         
+        // 外层包装器设置背景色，内层内容不设置背景色（避免间隙）
         const wrapperStyle = `display:block;width:100%;max-width:677px;margin:0 auto;padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background-color:${rgbBgColor};`;
         
         // 获取内联后的内容
         let contentHtml = inlined.innerHTML;
         
-        // 为所有元素添加背景色
+        // 移除所有子元素的背景色，让外层包装器统一控制背景
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = contentHtml;
         
-        const addBgToAll = (element) => {
+        const removeBgFromAll = (element) => {
             if (element.nodeType === Node.ELEMENT_NODE) {
                 const currentStyle = element.getAttribute('style') || '';
+                // 移除 background-color，保留其他样式
                 const cleanStyle = currentStyle.replace(/background-color:[^;]+;?/gi, '');
-                element.setAttribute('style', `background-color:${rgbBgColor};${cleanStyle}`);
-                Array.from(element.children).forEach(addBgToAll);
+                if (cleanStyle.trim()) {
+                    element.setAttribute('style', cleanStyle);
+                } else {
+                    element.removeAttribute('style');
+                }
+                // 递归处理子元素
+                Array.from(element.children).forEach(removeBgFromAll);
             }
         };
         
-        Array.from(tempDiv.children).forEach(addBgToAll);
+        Array.from(tempDiv.children).forEach(removeBgFromAll);
         contentHtml = tempDiv.innerHTML;
         
         return `<div style="${wrapperStyle}">${contentHtml}</div>`;
