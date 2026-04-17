@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公众号排版器 - 专业 Markdown 编辑器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- 顶部工具栏 -->
+        <header class="toolbar">
+            <div class="toolbar-brand">
+                <div class="brand-mark">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#brandGradient)"/>
+                        <path d="M10 22V10H14L16 16L18 10H22V22H19V13L16 19H15L12 13V22H10Z" fill="white"/>
+                        <defs>
+                            <linearGradient id="brandGradient" x1="0" y1="0" x2="32" y2="32">
+                                <stop stop-color="#F59E0B"/>
+                                <stop offset="1" stop-color="#D97706"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-name">Editor</span>
+                    <span class="brand-tagline">公众号排版器</span>
+                </div>
+            </div>
+
+            <div class="toolbar-center">
+                <div class="theme-dropdown-wrapper">
+                    <button class="theme-trigger" id="themeTrigger">
+                        <span class="theme-label">样式主题</span>
+                        <span class="theme-current" id="currentThemeName">默认风格</span>
+                        <svg class="theme-arrow" width="14" height="14" viewBox="0 0 14 14">
+                            <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="theme-menu" id="themeMenu">
+                        <div class="theme-section">
+                            <div class="theme-section-title">经典公众号</div>
+                            <div class="theme-grid">
+                                <button class="theme-chip active" data-theme="default" data-name="默认风格">
+                                    <span class="chip-dot" style="background: #07C160;"></span>
+                                    <span class="chip-name">默认</span>
+                                </button>
+                                <button class="theme-chip" data-theme="latepost" data-name="晚点风格">
+                                    <span class="chip-dot" style="background: #1a1a1a;"></span>
+                                    <span class="chip-name">晚点</span>
+                                </button>
+                                <button class="theme-chip" data-theme="tech" data-name="技术风格">
+                                    <span class="chip-dot" style="background: linear-gradient(135deg, #667eea, #764ba2);"></span>
+                                    <span class="chip-name">技术</span>
+                                </button>
+                                <button class="theme-chip" data-theme="elegant" data-name="优雅简约">
+                                    <span class="chip-dot" style="background: #7F8C8D;"></span>
+                                    <span class="chip-name">优雅</span>
+                                </button>
+                                <button class="theme-chip" data-theme="deep" data-name="深度阅读">
+                                    <span class="chip-dot" style="background: #8B7355;"></span>
+                                    <span class="chip-name">深度</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-section-title">传统媒体</div>
+                            <div class="theme-grid">
+                                <button class="theme-chip" data-theme="ft" data-name="金融时报">
+                                    <span class="chip-dot" style="background: #9E2F50;"></span>
+                                    <span class="chip-name">FT</span>
+                                </button>
+                                <button class="theme-chip" data-theme="nyt" data-name="纽约时报">
+                                    <span class="chip-dot" style="background: #121212;"></span>
+                                    <span class="chip-name">NYT</span>
+                                </button>
+                                <button class="theme-chip" data-theme="guardian" data-name="卫报">
+                                    <span class="chip-dot" style="background: #005689;"></span>
+                                    <span class="chip-name">Guardian</span>
+                                </button>
+                                <button class="theme-chip" data-theme="nikkei" data-name="日经">
+                                    <span class="chip-dot" style="background: #C41E3A;"></span>
+                                    <span class="chip-name">Nikkei</span>
+                                </button>
+                                <button class="theme-chip" data-theme="lemonde" data-name="世界报">
+                                    <span class="chip-dot" style="background: #003366;"></span>
+                                    <span class="chip-name">Le Monde</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-section-title">现代数字</div>
+                            <div class="theme-grid">
+                                <button class="theme-chip" data-theme="claude" data-name="Claude">
+                                    <span class="chip-dot" style="background: #D97757;"></span>
+                                    <span class="chip-name">Claude</span>
+                                </button>
+                                <button class="theme-chip" data-theme="medium" data-name="Medium">
+                                    <span class="chip-dot" style="background: rgba(0,0,0,0.84);"></span>
+                                    <span class="chip-name">Medium</span>
+                                </button>
+                                <button class="theme-chip" data-theme="apple" data-name="Apple">
+                                    <span class="chip-dot" style="background: #1D1D1F;"></span>
+                                    <span class="chip-name">Apple</span>
+                                </button>
+                                <button class="theme-chip" data-theme="jonyive" data-name="Jony Ive">
+                                    <span class="chip-dot" style="background: linear-gradient(135deg, #999, #ccc);"></span>
+                                    <span class="chip-name">Jony Ive</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-section-title">设计师风格</div>
+                            <div class="theme-grid">
+                                <button class="theme-chip" data-theme="kenya" data-name="原研哉·空">
+                                    <span class="chip-dot" style="background: #E8E8E8;"></span>
+                                    <span class="chip-name">原研哉</span>
+                                </button>
+                                <button class="theme-chip" data-theme="hische" data-name="编辑部">
+                                    <span class="chip-dot" style="background: #222;"></span>
+                                    <span class="chip-name">编辑部</span>
+                                </button>
+                                <button class="theme-chip" data-theme="ando" data-name="安藤·清水">
+                                    <span class="chip-dot" style="background: #666;"></span>
+                                    <span class="chip-name">安藤</span>
+                                </button>
+                                <button class="theme-chip" data-theme="gaudi" data-name="高迪·有机">
+                                    <span class="chip-dot" style="background: #D2691E;"></span>
+                                    <span class="chip-name">高迪</span>
+                                </button>
+                                <button class="theme-chip" data-theme="burnt" data-name="焦橙文档">
+                                    <span class="chip-dot" style="background: #FF8C00;"></span>
+                                    <span class="chip-name">焦橙</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-section-title">自定义</div>
+                            <div class="theme-grid">
+                                <button class="theme-chip" data-theme="custom" data-name="自定义">
+                                    <span class="chip-dot" style="background: conic-gradient(from 0deg, #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #8800ff, #ff0000);"></span>
+                                    <span class="chip-name">自定义</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toolbar-actions">
+                <button class="tool-btn" id="customizeBtn" title="自定义主题">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <circle cx="9" cy="9" r="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M9 2V4M9 14V16M2 9H4M14 9H16M4.22 4.22L5.64 5.64M12.36 12.36L13.78 13.78M4.22 13.78L5.64 12.36M12.36 5.64L13.78 4.22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>自定义</span>
+                </button>
+                <button class="tool-btn" id="uploadBtn" title="导入 Markdown">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path d="M9 2V10M9 2L5 6M9 2L13 6M2 13H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>导入</span>
+                    <input type="file" id="fileInput" accept=".md,.markdown" hidden>
+                </button>
+                <button class="tool-btn" id="historyBtn" title="历史记录">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M9 5V9L12 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>历史</span>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="tool-btn" id="clearBtn" title="清空">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path d="M2 5H16M4 5V14C4 15.1046 4.89543 16 6 16H12C13.1046 16 14 15.1046 14 14V5M7 5V4C7 3.17157 7.67157 2.5 8.5 2.5C9.32843 2.5 10 3.17157 10 4V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button class="btn-primary" id="copyWechatBtn">
+                    <svg width="16" height="16" viewBox="0 0 16 16">
+                        <rect x="2" y="2" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M6 6H14C14.5523 6 15 6.44772 15 7V14C15 14.5523 14.5523 15 14 15H7C6.44772 15 6 14.5523 6 14V6Z" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>复制到公众号</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 主体工作区 -->
+        <main class="workspace">
+            <!-- 编辑器区域 -->
+            <section class="editor-pane">
+                <div class="pane-header">
+                    <div class="pane-tabs">
+                        <button class="pane-tab active">
+                            <svg width="14" height="14" viewBox="0 0 14 14">
+                                <path d="M2 3H12M2 7H12M2 11H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            <span>编辑</span>
+                        </button>
+                    </div>
+                    <div class="pane-meta">
+                        <span id="charCount">0</span> 字符
+                    </div>
+                </div>
+                <div class="editor-container">
+                    <div class="line-numbers" id="lineNumbers">1</div>
+                    <textarea 
+                        id="editor" 
+                        class="editor" 
+                        placeholder="# 开始写作...&#10;&#10;支持标准 Markdown 语法&#10;&#10;💡 快捷操作：&#10;- 粘贴图片自动压缩上传&#10;- 从飞书/Notion/Word 粘贴自动转换&#10;- Ctrl/Cmd + S 快速保存&#10;- Ctrl/Cmd + A 全选"
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+                <div class="editor-status">
+                    <div class="status-left">
+                        <span class="status-item" id="saveStatus">就绪</span>
+                    </div>
+                    <div class="status-right">
+                        <span class="status-item">Markdown</span>
+                        <span class="status-separator">·</span>
+                        <span class="status-item">UTF-8</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 预览区域 -->
+            <section class="preview-pane">
+                <div class="pane-header">
+                    <div class="pane-tabs">
+                        <button class="pane-tab active">
+                            <svg width="14" height="14" viewBox="0 0 14 14">
+                                <path d="M1 7C1 7 3 3 7 3C11 3 13 7 13 7C13 7 11 11 7 11C3 11 1 7 1 7Z" stroke="currentColor" stroke-width="1.5"/>
+                                <circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            <span>预览</span>
+                        </button>
+                    </div>
+                    <div class="pane-actions">
+                        <button class="pane-action" id="copyMarkdownBtn" title="复制 Markdown">
+                            <svg width="14" height="14" viewBox="0 0 14 14">
+                                <path d="M3 4V3C3 1.89543 3.89543 1 5 1H11C12.1046 1 13 1.89543 13 3V9C13 10.1046 12.1046 11 11 11H10M3 4H9C10.1046 4 11 4.89543 11 6V11C11 12.1046 10.1046 13 9 13H3C1.89543 13 1 12.1046 1 11V6C1 4.89543 1.89543 4 3 4Z" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                        <button class="pane-action" id="downloadBtn" title="下载 HTML">
+                            <svg width="14" height="14" viewBox="0 0 14 14">
+                                <path d="M7 1V8M7 8L3 4M7 8L11 4M1 11H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-container">
+                    <div class="preview-frame" id="previewFrame">
+                        <div id="preview" class="preview-content theme-default"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 历史记录面板 -->
+        <aside class="drawer" id="historyDrawer">
+            <div class="drawer-header">
+                <h3 class="drawer-title">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M9 5V9L12 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    历史记录
+                </h3>
+                <button class="drawer-close" id="closeDrawer">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path d="M4 4L14 14M14 4L4 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="drawer-content">
+                <div class="history-list" id="historyList">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg width="48" height="48" viewBox="0 0 48 48">
+                                <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.5" fill="none" stroke-dasharray="4 4"/>
+                                <path d="M24 16V24L30 28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <p class="empty-title">暂无历史记录</p>
+                        <p class="empty-desc">编辑内容后将自动保存</p>
+                    </div>
+                </div>
+            </div>
+            <div class="drawer-footer">
+                <span class="history-count"><span id="historyCount">0</span> / 20</span>
+            </div>
+        </aside>
+
+        <!-- 自定义主题面板 -->
+        <aside class="drawer drawer-customize" id="customizeDrawer">
+            <div class="drawer-header">
+                <h3 class="drawer-title">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <circle cx="9" cy="9" r="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M9 2V4M9 14V16M2 9H4M14 9H16M4.22 4.22L5.64 5.64M12.36 12.36L13.78 13.78M4.22 13.78L5.64 12.36M12.36 5.64L13.78 4.22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    自定义主题
+                </h3>
+                <button class="drawer-close" id="closeCustomize">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path d="M4 4L14 14M14 4L4 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="drawer-content">
+                <div class="customize-section">
+                    <h4 class="customize-title">布局设置</h4>
+                    <div class="customize-group">
+                        <label class="customize-label">内容宽度</label>
+                        <div class="customize-options">
+                            <button class="customize-option" data-width="narrow">窄</button>
+                            <button class="customize-option active" data-width="normal">标准</button>
+                            <button class="customize-option" data-width="wide">宽</button>
+                        </div>
+                    </div>
+                    <div class="customize-group">
+                        <label class="customize-label">内容对齐</label>
+                        <div class="customize-options">
+                            <button class="customize-option" data-align="left">左对齐</button>
+                            <button class="customize-option active" data-align="justify">两端对齐</button>
+                            <button class="customize-option" data-align="center">居中</button>
+                        </div>
+                    </div>
+                    <div class="customize-group">
+                        <label class="customize-label">段落间距</label>
+                        <input type="range" class="customize-slider" id="paragraphSpacing" min="1" max="3" step="0.5" value="1.8">
+                        <span class="customize-value" id="paragraphSpacingValue">1.8</span>
+                    </div>
+                </div>
+
+                <div class="customize-section">
+                    <h4 class="customize-title">颜色设置</h4>
+                    <div class="customize-group">
+                        <label class="customize-label">主标题颜色</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" class="color-picker" id="h1Color" value="#1a1a1a">
+                            <span class="color-value" id="h1ColorValue">#1a1a1a</span>
+                        </div>
+                    </div>
+                    <div class="customize-group">
+                        <label class="customize-label">副标题颜色</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" class="color-picker" id="h2Color" value="#333333">
+                            <span class="color-value" id="h2ColorValue">#333333</span>
+                        </div>
+                    </div>
+                    <div class="customize-group">
+                        <label class="customize-label">正文颜色</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" class="color-picker" id="textColor" value="#333333">
+                            <span class="color-value" id="textColorValue">#333333</span>
+                        </div>
+                    </div>
+                    <div class="customize-group">
+                        <label class="customize-label">强调色</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" class="color-picker" id="accentColor" value="#07C160">
+                            <span class="color-value" id="accentColorValue">#07C160</span>
+                        </div>
+                    </div>
+                    <div class="customize-group">
+                        <label class="customize-label">背景色</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" class="color-picker" id="bgColor" value="#ffffff">
+                            <span class="color-value" id="bgColorValue">#ffffff</span>
+                        </div>
+                    </div>
+                    <div class="customize-group">
+                        <label class="customize-label">引用块背景</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" class="color-picker" id="quoteBgColor" value="#F5F6F7">
+                            <span class="color-value" id="quoteBgColorValue">#F5F6F7</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customize-section">
+                    <h4 class="customize-title">字体设置</h4>
+                    <div class="customize-group">
+                        <label class="customize-label">正文字体</label>
+                        <select class="customize-select" id="bodyFont">
+                            <option value="system">系统默认</option>
+                            <option value="serif">衬线体 (Serif)</option>
+                            <option value="noto">思源宋体</option>
+                            <option value="crimson">Crimson Pro</option>
+                        </select>
+                    </div>
+                    <div class="customize-group">
+                        <label class="customize-label">正文字号</label>
+                        <div class="customize-options">
+                            <button class="customize-option" data-size="14">14px</button>
+                            <button class="customize-option active" data-size="16">16px</button>
+                            <button class="customize-option" data-size="18">18px</button>
+                            <button class="customize-option" data-size="20">20px</button>
+                        </div>
+                    </div>
+                    <div class="customize-group">
+                        <label class="customize-label">行高</label>
+                        <input type="range" class="customize-slider" id="lineHeight" min="1.4" max="2.4" step="0.1" value="1.8">
+                        <span class="customize-value" id="lineHeightValue">1.8</span>
+                    </div>
+                </div>
+
+                <div class="customize-actions">
+                    <button class="btn-secondary" id="resetCustomize">重置</button>
+                    <button class="btn-primary" id="applyCustomize">应用</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 遮罩 -->
+        <div class="backdrop" id="backdrop"></div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast">
+            <div class="toast-icon" id="toastIcon">✓</div>
+            <div class="toast-message" id="toastMessage">操作成功</div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

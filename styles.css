@@ -1,0 +1,3089 @@
+/* ========================================
+   公众号排版器 - 编辑器工作台风格
+   深色主题 + 琥珀强调 + 精致工业美学
+   ======================================== */
+
+/* CSS 变量系统 */
+:root {
+    /* 主色调 - 深色沉浸 */
+    --bg-primary: #0D0D0F;
+    --bg-secondary: #141417;
+    --bg-tertiary: #1A1A1E;
+    --bg-elevated: #212126;
+    
+    /* 边框与分割 */
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.15);
+    
+    /* 文字颜色 */
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+    --text-muted: #52525B;
+    
+    /* 强调色 - 琥珀 */
+    --accent: #F59E0B;
+    --accent-hover: #FBBF24;
+    --accent-dim: rgba(245, 158, 11, 0.15);
+    --accent-glow: rgba(245, 158, 11, 0.3);
+    
+    /* 功能色 */
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --error: #EF4444;
+    
+    /* 字体 */
+    --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-serif: 'Crimson Pro', Georgia, 'Noto Serif SC', serif;
+    
+    /* 间距 */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    
+    /* 圆角 */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    
+    /* 过渡 */
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 重置 */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   应用容器
+   ======================================== */
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg-primary);
+}
+
+/* ========================================
+   顶部工具栏
+   ======================================== */
+.toolbar {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 var(--space-4);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-default);
+    flex-shrink: 0;
+    gap: var(--space-4);
+}
+
+/* 品牌区 */
+.toolbar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 180px;
+}
+
+.brand-mark {
+    flex-shrink: 0;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+}
+
+.brand-tagline {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+}
+
+/* 工具栏中部 */
+.toolbar-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+/* 主题下拉 */
+.theme-dropdown-wrapper {
+    position: relative;
+}
+
+.theme-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 8px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.theme-trigger:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+}
+
+.theme-trigger.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.theme-label {
+    font-weight: 500;
+}
+
+.theme-current {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.theme-arrow {
+    transition: transform var(--transition-fast);
+    opacity: 0.6;
+}
+
+.theme-trigger.active .theme-arrow {
+    transform: rotate(180deg);
+}
+
+/* 主题菜单 */
+.theme-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    width: 420px;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+    z-index: 1000;
+    padding: var(--space-3);
+}
+
+.theme-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.theme-section {
+    margin-bottom: var(--space-4);
+}
+
+.theme-section:last-child {
+    margin-bottom: 0;
+}
+
+.theme-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: var(--space-3);
+    padding-left: var(--space-2);
+}
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-2);
+}
+
+.theme-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: var(--space-3) var(--space-2);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.theme-chip:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-default);
+}
+
+.theme-chip.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+}
+
+.chip-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.chip-name {
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.theme-chip.active .chip-name {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+/* 工具栏操作区 */
+.toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 180px;
+    justify-content: flex-end;
+}
+
+.tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.tool-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.tool-btn svg {
+    flex-shrink: 0;
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-default);
+    margin: 0 var(--space-1);
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-md);
+    color: #0D0D0F;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.btn-primary svg {
+    stroke: currentColor;
+}
+
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+/* ========================================
+   工作区
+   ======================================== */
+.workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* 面板通用样式 */
+.editor-pane, .preview-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg-primary);
+}
+
+.editor-pane {
+    border-right: 1px solid var(--border-default);
+}
+
+/* 面板头部 */
+.pane-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    padding: 0 var(--space-4);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-default);
+    flex-shrink: 0;
+}
+
+.pane-tabs {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.pane-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.pane-tab:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.pane-tab.active {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+.pane-tab svg {
+    opacity: 0.7;
+}
+
+.pane-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+}
+
+.pane-actions {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.pane-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.pane-action:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* ========================================
+   编辑器
+   ======================================== */
+.editor-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+.line-numbers {
+    width: 56px;
+    padding: var(--space-4) 0;
+    background: var(--bg-primary);
+    border-right: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    text-align: right;
+    padding-right: var(--space-3);
+    user-select: none;
+    overflow: hidden;
+}
+
+.editor {
+    flex: 1;
+    padding: var(--space-4) var(--space-5);
+    background: var(--bg-primary);
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.8;
+    resize: none;
+    tab-size: 2;
+    overflow-y: auto;
+}
+
+.editor::placeholder {
+    color: var(--text-muted);
+}
+
+.editor::selection {
+    background: var(--accent-dim);
+    color: var(--accent);
+}
+
+/* 编辑器状态栏 */
+.editor-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 28px;
+    padding: 0 var(--space-4);
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-default);
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.status-left, .status-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.status-separator {
+    opacity: 0.5;
+}
+
+/* ========================================
+   预览区
+   ======================================== */
+.preview-container {
+    flex: 1;
+    overflow: auto;
+    background: var(--bg-tertiary);
+    padding: var(--space-6);
+}
+
+.preview-frame {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    min-height: calc(100% - var(--space-8));
+    transition: all var(--transition-normal);
+}
+
+.preview-frame.narrow {
+    max-width: 640px;
+}
+
+.preview-frame.wide {
+    max-width: 960px;
+}
+
+.preview-content {
+    padding: 48px;
+    font-family: var(--font-sans);
+    line-height: 1.8;
+    color: #1a1a1a;
+    transition: all var(--transition-normal);
+}
+
+/* ========================================
+   抽屉面板
+   ======================================== */
+.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 380px;
+    height: 100%;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-default);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    transform: translateX(100%);
+    transition: transform var(--transition-slow);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+}
+
+.drawer.show {
+    transform: translateX(0);
+}
+
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 var(--space-4);
+    border-bottom: 1px solid var(--border-default);
+}
+
+.drawer-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.drawer-title svg {
+    color: var(--accent);
+}
+
+.drawer-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.drawer-close:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4);
+}
+
+.drawer-footer {
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--border-default);
+    text-align: center;
+}
+
+/* 自定义面板 */
+.drawer-customize .drawer-content {
+    padding: 0;
+}
+
+.customize-section {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-default);
+}
+
+.customize-section:last-child {
+    border-bottom: none;
+}
+
+.customize-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.customize-group {
+    margin-bottom: var(--space-4);
+}
+
+.customize-group:last-child {
+    margin-bottom: 0;
+}
+
+.customize-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+
+.customize-options {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.customize-option {
+    padding: 8px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.customize-option:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-default);
+    color: var(--text-primary);
+}
+
+.customize-option.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.customize-slider {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-elevated);
+    border-radius: 2px;
+    outline: none;
+    -webkit-appearance: none;
+    margin-bottom: var(--space-2);
+}
+
+.customize-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.customize-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.customize-value {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+}
+
+.color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.color-picker {
+    width: 48px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    background: transparent;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+    border: none;
+}
+
+.color-value {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+.customize-select {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+}
+
+.customize-select:focus {
+    border-color: var(--accent);
+}
+
+.customize-select option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.customize-actions {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border-top: 1px solid var(--border-default);
+}
+
+.customize-actions .btn-primary,
+.customize-actions .btn-secondary {
+    flex: 1;
+}
+
+/* 历史记录列表 */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.history-item {
+    padding: var(--space-3);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.history-item:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-default);
+}
+
+.history-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-item-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8) var(--space-4);
+    text-align: center;
+}
+
+.empty-icon {
+    color: var(--text-muted);
+    margin-bottom: var(--space-4);
+}
+
+.empty-title {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-1);
+}
+
+.empty-desc {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.history-count {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+   遮罩与 Toast
+   ======================================== */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+    z-index: 1000;
+}
+
+.backdrop.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 14px 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: all var(--transition-normal);
+    z-index: 2000;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: var(--success);
+    border-radius: 50%;
+    font-size: 12px;
+    color: white;
+}
+
+.toast-message {
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+/* ========================================
+   主题样式 - 默认公众号风格
+   ======================================== */
+.theme-default {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+    color: #1a1a1a;
+}
+
+.theme-default h1 {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 0 0 24px 0;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #07C160;
+}
+
+.theme-default h2 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 36px 0 16px 0;
+    padding-left: 12px;
+    border-left: 4px solid #07C160;
+}
+
+.theme-default h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 24px 0 12px 0;
+}
+
+.theme-default p {
+    font-size: 16px;
+    line-height: 1.9;
+    margin: 0 0 18px 0;
+    text-align: justify;
+}
+
+.theme-default blockquote {
+    margin: 24px 0;
+    padding: 20px 24px;
+    background: #F5F6F7;
+    border-left: 4px solid #07C160;
+    border-radius: 0 8px 8px 0;
+}
+
+.theme-default blockquote p {
+    margin: 0;
+    font-size: 15px;
+    color: #4E5969;
+}
+
+.theme-default ul, .theme-default ol {
+    margin: 18px 0;
+    padding-left: 28px;
+}
+
+.theme-default li {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.theme-default a {
+    color: #576B95;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.theme-default a:hover {
+    border-bottom-color: #576B95;
+}
+
+.theme-default hr {
+    border: none;
+    border-top: 1px solid #E5E6EB;
+    margin: 32px 0;
+}
+
+.theme-default img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.theme-default pre {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+.theme-default code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+}
+
+.theme-default pre code {
+    color: #E2E8F0;
+    background: none;
+    padding: 0;
+}
+
+.theme-default p code {
+    background: rgba(175, 184, 193, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #24292F;
+}
+
+.theme-default table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 14px;
+}
+
+.theme-default th, .theme-default td {
+    padding: 12px 16px;
+    border: 1px solid #E5E6EB;
+    text-align: left;
+}
+
+.theme-default th {
+    background: #F5F6F7;
+    font-weight: 600;
+}
+
+.theme-default tr:nth-child(even) {
+    background: #FAFBFC;
+}
+
+/* ========================================
+   主题样式 - 晚点风格 (杂志感)
+   ======================================== */
+.theme-latepost {
+    font-family: 'Noto Serif SC', Georgia, serif;
+    color: #1a1a1a;
+    background: #FDFDFD;
+}
+
+.theme-latepost h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 32px 0;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    text-align: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #E5E5E5;
+}
+
+.theme-latepost h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 48px 0 20px 0;
+    color: #1a1a1a;
+    position: relative;
+    padding-left: 16px;
+}
+
+.theme-latepost h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    background: #1a1a1a;
+}
+
+.theme-latepost h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 32px 0 14px 0;
+    color: #333;
+}
+
+.theme-latepost p {
+    font-size: 18px;
+    line-height: 2;
+    margin: 0 0 24px 0;
+    text-align: justify;
+    color: #333;
+}
+
+.theme-latepost blockquote {
+    margin: 36px 24px;
+    padding: 0 24px;
+    border-left: none;
+    border-right: none;
+    position: relative;
+}
+
+.theme-latepost blockquote::before {
+    content: '"';
+    font-size: 80px;
+    color: #E5E5E5;
+    position: absolute;
+    top: -20px;
+    left: 0;
+    font-family: Georgia, serif;
+    line-height: 1;
+}
+
+.theme-latepost blockquote p {
+    font-size: 18px;
+    color: #555;
+    font-style: italic;
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    line-height: 1.9;
+}
+
+.theme-latepost a {
+    color: #1a1a1a;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* ========================================
+   主题样式 - 技术风格 (深色代码)
+   ======================================== */
+.theme-tech {
+    font-family: 'Space Grotesk', -apple-system, sans-serif;
+    color: #1a202c;
+    background: #0F172A;
+    color: #E2E8F0;
+    padding: 48px;
+}
+
+.theme-tech h1 {
+    font-size: 40px;
+    font-weight: 700;
+    margin: 0 0 32px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #F093FB 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+}
+
+.theme-tech h2 {
+    font-size: 26px;
+    font-weight: 600;
+    margin: 48px 0 20px 0;
+    color: #A78BFA;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.theme-tech h2::before {
+    content: '//';
+    color: #667eea;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.theme-tech h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 32px 0 14px 0;
+    color: #60A5FA;
+}
+
+.theme-tech p {
+    font-size: 17px;
+    line-height: 1.85;
+    margin: 0 0 20px 0;
+    color: #CBD5E1;
+}
+
+.theme-tech blockquote {
+    margin: 32px 0;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    position: relative;
+}
+
+.theme-tech blockquote::before {
+    content: '>';
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    color: #667eea;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.theme-tech blockquote p {
+    margin: 0;
+    padding-left: 24px;
+    color: #94A3B8;
+}
+
+.theme-tech pre {
+    background: #1E293B;
+    border-radius: 12px;
+    padding: 24px;
+    overflow-x: auto;
+    margin: 24px 0;
+    border: 1px solid #334155;
+}
+
+.theme-tech code {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.theme-tech a {
+    color: #60A5FA;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.theme-tech a:hover {
+    border-bottom-color: #60A5FA;
+}
+
+/* ========================================
+   主题样式 - 优雅简约 (极简留白)
+   ======================================== */
+.theme-elegant {
+    font-family: 'Inter', sans-serif;
+    color: #2C3E50;
+    background: #FEFEFE;
+}
+
+.theme-elegant h1 {
+    font-size: 28px;
+    font-weight: 300;
+    margin: 0 0 48px 0;
+    letter-spacing: 3px;
+    text-align: center;
+    color: #2C3E50;
+    text-transform: uppercase;
+}
+
+.theme-elegant h2 {
+    font-size: 12px;
+    font-weight: 500;
+    margin: 64px 0 24px 0;
+    color: #95A5A6;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    text-align: center;
+}
+
+.theme-elegant h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 32px 0 16px 0;
+    color: #7F8C8D;
+    letter-spacing: 2px;
+}
+
+.theme-elegant p {
+    font-size: 15px;
+    line-height: 2.4;
+    margin: 0 0 28px 0;
+    color: #34495E;
+    text-align: justify;
+}
+
+.theme-elegant blockquote {
+    margin: 48px 64px;
+    padding: 0;
+    border: none;
+    text-align: center;
+}
+
+.theme-elegant blockquote p {
+    font-size: 18px;
+    font-style: italic;
+    color: #95A5A6;
+    line-height: 2;
+    margin: 0;
+}
+
+.theme-elegant a {
+    color: #3498DB;
+    text-decoration: none;
+    position: relative;
+}
+
+.theme-elegant a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #3498DB;
+    transition: width 0.3s ease;
+}
+
+.theme-elegant a:hover::after {
+    width: 100%;
+}
+
+/* ========================================
+   主题样式 - 深度阅读 (大字号长文)
+   ======================================== */
+.theme-deep {
+    font-family: 'Crimson Pro', Georgia, serif;
+    color: #2D2D2D;
+    background: #FDFCF8;
+}
+
+.theme-deep h1 {
+    font-size: 42px;
+    font-weight: 700;
+    margin: 0 0 40px 0;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.theme-deep h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 56px 0 24px 0;
+    padding-top: 32px;
+    border-top: 1px solid #E5E0D8;
+    color: #4A4A4A;
+}
+
+.theme-deep h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 36px 0 16px 0;
+    color: #5A5A5A;
+}
+
+.theme-deep p {
+    font-size: 20px;
+    line-height: 2;
+    margin: 0 0 28px 0;
+    text-align: justify;
+    color: #3D3D3D;
+}
+
+.theme-deep blockquote {
+    margin: 40px 0;
+    padding: 32px 40px;
+    background: #F5F3EF;
+    border-left: 4px solid #8B7355;
+}
+
+.theme-deep blockquote p {
+    font-size: 19px;
+    color: #5C5C5C;
+    margin: 0;
+    line-height: 1.9;
+}
+
+/* ========================================
+   主题样式 - 金融时报 (粉色财经)
+   ======================================== */
+.theme-ft {
+    font-family: 'Noto Serif SC', Georgia, serif;
+    color: #33312E;
+    background: #FFFDFB;
+}
+
+.theme-ft h1 {
+    font-size: 34px;
+    font-weight: 400;
+    margin: 0 0 24px 0;
+    font-family: Georgia, serif;
+    color: #1a1a1a;
+}
+
+.theme-ft h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 36px 0 16px 0;
+    color: #9E2F50;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 16px;
+}
+
+.theme-ft h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 24px 0 12px 0;
+    color: #333;
+}
+
+.theme-ft p {
+    font-size: 16px;
+    line-height: 1.75;
+    margin: 0 0 16px 0;
+}
+
+.theme-ft blockquote {
+    margin: 28px 0;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #FFF5F7 0%, #FFF0F3 100%);
+    border-left: 3px solid #9E2F50;
+}
+
+.theme-ft a {
+    color: #9E2F50;
+    text-decoration: none;
+    border-bottom: 1px dotted #9E2F50;
+}
+
+/* ========================================
+   主题样式 - 纽约时报 (经典报纸)
+   ======================================== */
+.theme-nyt {
+    font-family: 'Crimson Pro', Georgia, serif;
+    color: #121212;
+    background: #FFFFFF;
+}
+
+.theme-nyt h1 {
+    font-size: 40px;
+    font-weight: 700;
+    font-style: italic;
+    margin: 0 0 28px 0;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.theme-nyt h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 40px 0 18px 0;
+}
+
+.theme-nyt h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 28px 0 12px 0;
+}
+
+.theme-nyt p {
+    font-size: 22px;
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+}
+
+.theme-nyt blockquote {
+    margin: 32px 48px;
+    padding: 0;
+    border: none;
+}
+
+.theme-nyt blockquote p {
+    font-size: 22px;
+    font-style: italic;
+    color: #666;
+}
+
+.theme-nyt ul, .theme-nyt ol {
+    margin: 20px 0;
+    padding-left: 24px;
+}
+
+.theme-nyt li {
+    font-size: 22px;
+    line-height: 1.6;
+    margin: 10px 0;
+}
+
+.theme-nyt a {
+    color: #121212;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.theme-nyt table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 16px;
+}
+
+.theme-nyt th, .theme-nyt td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #CCC;
+    text-align: left;
+}
+
+.theme-nyt th {
+    font-weight: 700;
+    border-bottom: 2px solid #121212;
+}
+
+.theme-nyt p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #F5F5F5;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.theme-nyt pre {
+    background: #1a1a1a;
+    color: #E2E8F0;
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 24px 0;
+    font-size: 14px;
+}
+
+/* ========================================
+   主题样式 - Guardian 卫报 (蓝色新闻)
+   ======================================== */
+.theme-guardian {
+    font-family: 'Inter', Georgia, serif;
+    color: #121212;
+    background: #FFFFFF;
+}
+
+.theme-guardian h1 {
+    font-size: 44px;
+    font-weight: 700;
+    margin: 0 0 28px 0;
+    line-height: 1.1;
+}
+
+.theme-guardian h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 36px 0 18px 0;
+    color: #005689;
+}
+
+.theme-guardian h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 22px 0 10px 0;
+}
+
+.theme-guardian p {
+    font-size: 18px;
+    line-height: 1.55;
+    margin: 0 0 18px 0;
+}
+
+.theme-guardian blockquote {
+    margin: 28px 0;
+    padding: 20px 24px;
+    background: #F6F6F6;
+    border-top: 3px solid #005689;
+    border-bottom: 1px solid #DCDCDC;
+    border-left: none;
+}
+
+.theme-guardian a {
+    color: #005689;
+    text-decoration: none;
+    border-bottom: 1px solid #AAD;
+}
+
+.theme-guardian ul, .theme-guardian ol {
+    margin: 18px 0;
+    padding-left: 24px;
+}
+
+.theme-guardian li {
+    font-size: 18px;
+    line-height: 1.55;
+    margin: 8px 0;
+}
+
+.theme-guardian table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 15px;
+}
+
+.theme-guardian th, .theme-guardian td {
+    padding: 10px 14px;
+    border: 1px solid #DCDCDC;
+    text-align: left;
+}
+
+.theme-guardian th {
+    background: #005689;
+    color: white;
+    font-weight: 600;
+}
+
+.theme-guardian p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #F0F0F0;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.theme-guardian pre {
+    background: #1a1a1a;
+    color: #E2E8F0;
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 24px 0;
+}
+
+/* ========================================
+   主题样式 - Nikkei 日经 (日式红色)
+   ======================================== */
+.theme-nikkei {
+    font-family: 'Noto Sans SC', sans-serif;
+    color: #1a1a1a;
+    background: #FFFFFF;
+}
+
+.theme-nikkei h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin: 0 0 24px 0;
+    line-height: 1.35;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #C41E3A;
+}
+
+.theme-nikkei h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 32px 0 16px 0;
+    padding: 10px 14px;
+    background: #C41E3A;
+    color: white;
+    display: inline-block;
+}
+
+.theme-nikkei h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 22px 0 10px 0;
+    color: #333;
+}
+
+.theme-nikkei p {
+    font-size: 15px;
+    line-height: 1.95;
+    margin: 0 0 18px 0;
+}
+
+.theme-nikkei blockquote {
+    margin: 24px 0;
+    padding: 18px;
+    background: #F8F8F8;
+    border-left: 4px solid #C41E3A;
+}
+
+.theme-nikkei ul, .theme-nikkei ol {
+    margin: 16px 0;
+    padding-left: 22px;
+}
+
+.theme-nikkei li {
+    font-size: 15px;
+    line-height: 1.95;
+    margin: 6px 0;
+}
+
+.theme-nikkei a {
+    color: #C41E3A;
+    text-decoration: none;
+}
+
+.theme-nikkei table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+}
+
+.theme-nikkei th, .theme-nikkei td {
+    padding: 10px 14px;
+    border: 1px solid #E0E0E0;
+    text-align: left;
+}
+
+.theme-nikkei th {
+    background: #C41E3A;
+    color: white;
+    font-weight: 700;
+}
+
+.theme-nikkei p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #F5F5F5;
+    padding: 2px 6px;
+    border-radius: 2px;
+}
+
+.theme-nikkei pre {
+    background: #1a1a1a;
+    color: #E2E8F0;
+    border-left: 4px solid #C41E3A;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+/* ========================================
+   主题样式 - Le Monde 世界报 (法式优雅)
+   ======================================== */
+.theme-lemonde {
+    font-family: 'Crimson Pro', Georgia, serif;
+    color: #2C2C2C;
+    background: #FAFAFA;
+}
+
+.theme-lemonde h1 {
+    font-size: 36px;
+    font-weight: 400;
+    margin: 0 0 28px 0;
+    color: #1a1a1a;
+}
+
+.theme-lemonde h2 {
+    font-size: 24px;
+    font-weight: 400;
+    margin: 36px 0 18px 0;
+    color: #003366;
+    font-style: italic;
+}
+
+.theme-lemonde h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 22px 0 10px 0;
+}
+
+.theme-lemonde p {
+    font-size: 18px;
+    line-height: 1.75;
+    margin: 0 0 18px 0;
+}
+
+.theme-lemonde blockquote {
+    margin: 28px 40px;
+    padding: 0 28px;
+    border-left: 2px solid #003366;
+    font-style: italic;
+}
+
+.theme-lemonde a {
+    color: #003366;
+    text-decoration: underline;
+}
+
+.theme-lemonde ul, .theme-lemonde ol {
+    margin: 18px 0;
+    padding-left: 24px;
+}
+
+.theme-lemonde li {
+    font-size: 18px;
+    line-height: 1.75;
+    margin: 8px 0;
+}
+
+.theme-lemonde table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 16px;
+}
+
+.theme-lemonde th, .theme-lemonde td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #D0D0D0;
+    text-align: left;
+}
+
+.theme-lemonde th {
+    font-weight: 700;
+    border-bottom: 2px solid #003366;
+    color: #003366;
+}
+
+.theme-lemonde p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #EFEFEF;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #003366;
+}
+
+.theme-lemonde pre {
+    background: #1a1a2e;
+    color: #E2E8F0;
+    border-radius: 6px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 24px 0;
+}
+
+/* ========================================
+   主题样式 - Claude (暖色调 AI)
+   ======================================== */
+.theme-claude {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #3D3D3D;
+    background: #FAFAF8;
+}
+
+.theme-claude h1 {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 0 0 28px 0;
+    color: #1a1a1a;
+}
+
+.theme-claude h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 36px 0 18px 0;
+    color: #D97757;
+}
+
+.theme-claude h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 22px 0 10px 0;
+}
+
+.theme-claude p {
+    font-size: 17px;
+    line-height: 1.85;
+    margin: 0 0 18px 0;
+}
+
+.theme-claude blockquote {
+    margin: 28px 0;
+    padding: 24px 28px;
+    background: #F5F2ED;
+    border-left: 4px solid #D97757;
+    border-radius: 0 10px 10px 0;
+}
+
+.theme-claude blockquote p {
+    color: #5C5C5C;
+    margin: 0;
+}
+
+.theme-claude a {
+    color: #D97757;
+    text-decoration: none;
+    border-bottom: 1px solid #D97757;
+}
+
+.theme-claude ul, .theme-claude ol {
+    margin: 18px 0;
+    padding-left: 28px;
+}
+
+.theme-claude li {
+    font-size: 17px;
+    line-height: 1.85;
+    margin: 8px 0;
+}
+
+.theme-claude table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 15px;
+}
+
+.theme-claude th, .theme-claude td {
+    padding: 12px 16px;
+    border: 1px solid #E8E0D8;
+    text-align: left;
+}
+
+.theme-claude th {
+    background: #F5F2ED;
+    font-weight: 600;
+    color: #D97757;
+}
+
+.theme-claude tr:nth-child(even) {
+    background: #FDFAF7;
+}
+
+.theme-claude p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #F5EDE6;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #D97757;
+}
+
+.theme-claude pre {
+    background: #2D2D2D;
+    color: #E2E8F0;
+    border-radius: 12px;
+    padding: 22px;
+    overflow-x: auto;
+    margin: 22px 0;
+}
+
+/* ========================================
+   主题样式 - Medium 长文 (超大字号)
+   ======================================== */
+.theme-medium {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    color: rgba(0, 0, 0, 0.84);
+    background: #FFFFFF;
+}
+
+.theme-medium h1 {
+    font-size: 42px;
+    font-weight: 800;
+    margin: 0 0 32px 0;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+}
+
+.theme-medium h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 52px 0 20px 0;
+    letter-spacing: -0.02em;
+}
+
+.theme-medium h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 36px 0 14px 0;
+}
+
+.theme-medium p {
+    font-size: 24px;
+    line-height: 1.6;
+    margin: 0 0 36px 0;
+    letter-spacing: -0.003em;
+}
+
+.theme-medium blockquote {
+    margin: 40px 0;
+    padding: 0 40px;
+    border-left: 3px solid rgba(0, 0, 0, 0.84);
+}
+
+.theme-medium blockquote p {
+    font-size: 26px;
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.68);
+    margin: 0;
+}
+
+.theme-medium ul, .theme-medium ol {
+    margin: 28px 0;
+    padding-left: 32px;
+}
+
+.theme-medium li {
+    font-size: 24px;
+    line-height: 1.6;
+    margin: 12px 0;
+}
+
+.theme-medium a {
+    color: rgba(0, 0, 0, 0.84);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.theme-medium table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 36px 0;
+    font-size: 18px;
+}
+
+.theme-medium th, .theme-medium td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #DDD;
+    text-align: left;
+}
+
+.theme-medium th {
+    font-weight: 700;
+    border-bottom: 2px solid rgba(0,0,0,0.84);
+}
+
+.theme-medium p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8em;
+    background: rgba(0,0,0,0.06);
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.theme-medium pre {
+    background: #1a1a1a;
+    color: #E2E8F0;
+    border-radius: 6px;
+    padding: 24px;
+    overflow-x: auto;
+    margin: 32px 0;
+    font-size: 16px;
+}
+
+/* ========================================
+   主题样式 - Apple 极简 (圆角卡片)
+   ======================================== */
+.theme-apple {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #1D1D1F;
+    background: #F5F5F7;
+    padding: 48px;
+}
+
+.theme-apple h1 {
+    font-size: 48px;
+    font-weight: 700;
+    margin: 0 0 32px 0;
+    letter-spacing: -0.022em;
+    line-height: 1.1;
+}
+
+.theme-apple h2 {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 56px 0 20px 0;
+    letter-spacing: -0.021em;
+}
+
+.theme-apple h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 32px 0 14px 0;
+    letter-spacing: -0.021em;
+}
+
+.theme-apple p {
+    font-size: 19px;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+    color: #86868B;
+}
+
+.theme-apple blockquote {
+    margin: 36px 0;
+    padding: 28px 36px;
+    background: #FFFFFF;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.theme-apple blockquote p {
+    color: #1D1D1F;
+    font-size: 21px;
+    margin: 0;
+}
+
+.theme-apple ul, .theme-apple ol {
+    margin: 20px 0;
+    padding-left: 28px;
+}
+
+.theme-apple li {
+    font-size: 19px;
+    line-height: 1.5;
+    margin: 8px 0;
+    color: #86868B;
+}
+
+.theme-apple a {
+    color: #0066CC;
+    text-decoration: none;
+}
+
+.theme-apple table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 28px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-size: 15px;
+}
+
+.theme-apple th, .theme-apple td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #E5E5EA;
+    text-align: left;
+    background: #FFFFFF;
+}
+
+.theme-apple th {
+    background: #1D1D1F;
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.theme-apple p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: #E8E8ED;
+    padding: 2px 8px;
+    border-radius: 6px;
+    color: #1D1D1F;
+}
+
+.theme-apple pre {
+    background: #1D1D1F;
+    color: #F5F5F7;
+    border-radius: 16px;
+    padding: 24px;
+    overflow-x: auto;
+    margin: 24px 0;
+}
+
+/* ========================================
+   主题样式 - Jony Ive (轻盈工业)
+   ======================================== */
+.theme-jonyive {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #333;
+    background: linear-gradient(180deg, #FAFAFA 0%, #F5F5F5 100%);
+}
+
+.theme-jonyive h1 {
+    font-size: 42px;
+    font-weight: 300;
+    margin: 0 0 36px 0;
+    letter-spacing: 0.02em;
+    color: #1a1a1a;
+}
+
+.theme-jonyive h2 {
+    font-size: 26px;
+    font-weight: 300;
+    margin: 56px 0 22px 0;
+    color: #666;
+}
+
+.theme-jonyive h3 {
+    font-size: 19px;
+    font-weight: 400;
+    margin: 32px 0 14px 0;
+    color: #555;
+}
+
+.theme-jonyive p {
+    font-size: 17px;
+    line-height: 1.9;
+    margin: 0 0 22px 0;
+    color: #555;
+}
+
+.theme-jonyive blockquote {
+    margin: 40px 0;
+    padding: 0;
+    border: none;
+    text-align: center;
+}
+
+.theme-jonyive blockquote p {
+    font-size: 22px;
+    font-weight: 300;
+    color: #999;
+    font-style: italic;
+    margin: 0;
+}
+
+.theme-jonyive ul, .theme-jonyive ol {
+    margin: 22px 0;
+    padding-left: 28px;
+}
+
+.theme-jonyive li {
+    font-size: 17px;
+    line-height: 1.9;
+    margin: 10px 0;
+    color: #666;
+}
+
+.theme-jonyive a {
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #CCC;
+}
+
+.theme-jonyive table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 15px;
+}
+
+.theme-jonyive th, .theme-jonyive td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #E5E5E5;
+    text-align: left;
+}
+
+.theme-jonyive th {
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: #999;
+    border-bottom: 1px solid #CCC;
+}
+
+.theme-jonyive p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #EEEEEE;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.theme-jonyive pre {
+    background: #F0F0F0;
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 24px 0;
+    border: 1px solid #E0E0E0;
+}
+
+/* ========================================
+   主题样式 - 原研哉·空 (日式留白)
+   ======================================== */
+.theme-kenya {
+    font-family: 'Inter', sans-serif;
+    color: #4A4A4A;
+    background: #FEFEFE;
+}
+
+.theme-kenya h1 {
+    font-size: 24px;
+    font-weight: 300;
+    margin: 0 0 56px 0;
+    letter-spacing: 6px;
+    text-align: center;
+    color: #2C2C2C;
+    text-transform: uppercase;
+}
+
+.theme-kenya h2 {
+    font-size: 11px;
+    font-weight: 400;
+    margin: 80px 0 28px 0;
+    letter-spacing: 10px;
+    text-transform: uppercase;
+    color: #BBB;
+    text-align: center;
+}
+
+.theme-kenya h3 {
+    font-size: 12px;
+    font-weight: 400;
+    margin: 40px 0 16px 0;
+    letter-spacing: 3px;
+    color: #888;
+}
+
+.theme-kenya p {
+    font-size: 14px;
+    line-height: 2.8;
+    margin: 0 0 32px 0;
+    color: #666;
+    text-align: justify;
+}
+
+.theme-kenya blockquote {
+    margin: 56px 0;
+    padding: 40px;
+    background: #FAFAFA;
+    border: none;
+    text-align: center;
+}
+
+.theme-kenya blockquote p {
+    font-size: 13px;
+    color: #999;
+    margin: 0;
+    line-height: 2.4;
+}
+
+.theme-kenya ul, .theme-kenya ol {
+    margin: 32px 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.theme-kenya li {
+    font-size: 14px;
+    line-height: 2.8;
+    margin: 4px 0;
+    color: #888;
+    padding-left: 16px;
+    position: relative;
+}
+
+.theme-kenya li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: #CCC;
+    font-weight: 300;
+}
+
+.theme-kenya a {
+    color: #777;
+    text-decoration: none;
+    border-bottom: 1px solid #DDD;
+}
+
+.theme-kenya table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 40px 0;
+    font-size: 12px;
+}
+
+.theme-kenya th, .theme-kenya td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #F0F0F0;
+    text-align: left;
+}
+
+.theme-kenya th {
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #BBB;
+    font-size: 10px;
+}
+
+.theme-kenya p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #F5F5F5;
+    padding: 2px 6px;
+    border-radius: 2px;
+    color: #999;
+}
+
+.theme-kenya pre {
+    background: #F8F8F8;
+    border-radius: 4px;
+    padding: 24px;
+    overflow-x: auto;
+    margin: 40px 0;
+    border: none;
+}
+
+/* ========================================
+   主题样式 - Hische·编辑部 (复古印刷)
+   ======================================== */
+.theme-hische {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: #222;
+    background: #FDFCFA;
+}
+
+.theme-hische h1 {
+    font-size: 52px;
+    font-weight: 700;
+    margin: 0 0 28px 0;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+.theme-hische h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 44px 0 20px 0;
+}
+
+.theme-hische h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 28px 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 14px;
+}
+
+.theme-hische p {
+    font-size: 18px;
+    line-height: 1.75;
+    margin: 0 0 20px 0;
+}
+
+.theme-hische blockquote {
+    margin: 32px 0;
+    padding: 24px 36px;
+    background: #F8F8F6;
+    border-left: 6px solid #222;
+}
+
+.theme-hische ul, .theme-hische ol {
+    margin: 24px 0;
+    padding-left: 28px;
+}
+
+.theme-hische li {
+    font-size: 18px;
+    line-height: 1.75;
+    margin: 8px 0;
+}
+
+.theme-hische a {
+    color: #222;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+.theme-hische table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 16px;
+}
+
+.theme-hische th, .theme-hische td {
+    padding: 12px 16px;
+    border: 1px solid #DDD;
+    text-align: left;
+}
+
+.theme-hische th {
+    background: #222;
+    color: #FDFCFA;
+    font-weight: 700;
+}
+
+.theme-hische p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #F0EEE8;
+    padding: 2px 8px;
+    border-radius: 3px;
+    color: #222;
+}
+
+.theme-hische pre {
+    background: #1a1a1a;
+    color: #E8E8E0;
+    border-radius: 8px;
+    padding: 22px;
+    overflow-x: auto;
+    margin: 24px 0;
+}
+
+/* ========================================
+   主题样式 - 安藤·清水 (混凝土极简)
+   ======================================== */
+.theme-ando {
+    font-family: 'Inter', sans-serif;
+    color: #2C2C2C;
+    background: #F7F7F7;
+}
+
+.theme-ando h1 {
+    font-size: 32px;
+    font-weight: 300;
+    margin: 0 0 40px 0;
+    letter-spacing: 3px;
+    border-bottom: 1px solid #DDD;
+    padding-bottom: 24px;
+}
+
+.theme-ando h2 {
+    font-size: 15px;
+    font-weight: 400;
+    margin: 48px 0 20px 0;
+    letter-spacing: 5px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.theme-ando h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 28px 0 12px 0;
+}
+
+.theme-ando p {
+    font-size: 15px;
+    line-height: 2.2;
+    margin: 0 0 24px 0;
+    color: #444;
+}
+
+.theme-ando blockquote {
+    margin: 40px 0;
+    padding: 28px;
+    background: #EEE;
+    border-left: 2px solid #999;
+}
+
+.theme-ando ul, .theme-ando ol {
+    margin: 24px 0;
+    padding-left: 22px;
+    list-style: none;
+}
+
+.theme-ando li {
+    font-size: 15px;
+    line-height: 2.2;
+    margin: 6px 0;
+    color: #555;
+    padding-left: 16px;
+    position: relative;
+}
+
+.theme-ando li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 1px;
+    background: #999;
+}
+
+.theme-ando a {
+    color: #444;
+    text-decoration: none;
+    border-bottom: 1px solid #CCC;
+}
+
+.theme-ando table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 14px;
+}
+
+.theme-ando th, .theme-ando td {
+    padding: 12px 16px;
+    border: 1px solid #DDDDDD;
+    text-align: left;
+}
+
+.theme-ando th {
+    background: #E5E5E5;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #444;
+}
+
+.theme-ando p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #E5E5E5;
+    padding: 2px 6px;
+    border-radius: 2px;
+    color: #444;
+}
+
+.theme-ando pre {
+    background: #333;
+    color: #EEE;
+    padding: 22px;
+    overflow-x: auto;
+    margin: 28px 0;
+    border-radius: 4px;
+}
+
+/* ========================================
+   主题样式 - 高迪·有机 (暖色曲线)
+   ======================================== */
+.theme-gaudi {
+    font-family: 'Crimson Pro', Georgia, serif;
+    color: #3D3632;
+    background: linear-gradient(180deg, #FFFDF9 0%, #FFF8F0 100%);
+}
+
+.theme-gaudi h1 {
+    font-size: 38px;
+    font-weight: 600;
+    margin: 0 0 28px 0;
+    color: #8B4513;
+}
+
+.theme-gaudi h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 44px 0 18px 0;
+    color: #A0522D;
+    border-bottom: 2px solid #DEB887;
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+.theme-gaudi h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 28px 0 12px 0;
+    color: #CD853F;
+}
+
+.theme-gaudi p {
+    font-size: 17px;
+    line-height: 2;
+    margin: 0 0 22px 0;
+}
+
+.theme-gaudi blockquote {
+    margin: 32px 0;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, #FFF8DC 0%, #FAEBD7 100%);
+    border-radius: 0 24px 24px 0;
+    border-left: 4px solid #D2691E;
+}
+
+.theme-gaudi ul, .theme-gaudi ol {
+    margin: 20px 0;
+    padding-left: 24px;
+}
+
+.theme-gaudi li {
+    font-size: 17px;
+    line-height: 2;
+    margin: 8px 0;
+}
+
+.theme-gaudi a {
+    color: #A0522D;
+    text-decoration: none;
+    border-bottom: 1px solid #DEB887;
+}
+
+.theme-gaudi table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 15px;
+}
+
+.theme-gaudi th, .theme-gaudi td {
+    padding: 12px 16px;
+    border: 1px solid #DEB887;
+    text-align: left;
+}
+
+.theme-gaudi th {
+    background: linear-gradient(135deg, #F5DEB3 0%, #FAEBD7 100%);
+    color: #8B4513;
+    font-weight: 600;
+}
+
+.theme-gaudi p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #FFF0DC;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #8B4513;
+}
+
+.theme-gaudi pre {
+    background: #2D1F0E;
+    color: #F5DEB3;
+    border-radius: 12px;
+    padding: 22px;
+    overflow-x: auto;
+    margin: 24px 0;
+}
+
+/* ========================================
+   主题样式 - 焦橙文档 (暖橙色调)
+   ======================================== */
+.theme-burnt {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #2C2416;
+    background: #FFFCF8;
+}
+
+.theme-burnt h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 28px 0;
+    color: #8B4513;
+}
+
+.theme-burnt h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 44px 0 18px 0;
+    color: #A0522D;
+}
+
+.theme-burnt h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 26px 0 12px 0;
+    color: #CD853F;
+}
+
+.theme-burnt p {
+    font-size: 17px;
+    line-height: 1.9;
+    margin: 0 0 20px 0;
+}
+
+.theme-burnt blockquote {
+    margin: 28px 0;
+    padding: 22px 26px;
+    background: #FFF5EB;
+    border-left: 4px solid #FF8C00;
+}
+
+.theme-burnt a {
+    color: #D2691E;
+    text-decoration: none;
+    border-bottom: 2px solid #FFDAB9;
+}
+
+.theme-burnt ul, .theme-burnt ol {
+    margin: 20px 0;
+    padding-left: 24px;
+}
+
+.theme-burnt li {
+    font-size: 17px;
+    line-height: 1.9;
+    margin: 8px 0;
+}
+
+.theme-burnt table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 15px;
+}
+
+.theme-burnt th, .theme-burnt td {
+    padding: 12px 16px;
+    border: 1px solid #F0D5B0;
+    text-align: left;
+}
+
+.theme-burnt th {
+    background: #FF8C00;
+    color: white;
+    font-weight: 600;
+}
+
+.theme-burnt tr:nth-child(even) {
+    background: #FFF9F2;
+}
+
+.theme-burnt p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #FFF5EB;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #D2691E;
+}
+
+.theme-burnt pre {
+    background: #2C1A0A;
+    color: #FFDAB9;
+    border-radius: 10px;
+    padding: 22px;
+    overflow-x: auto;
+    margin: 22px 0;
+}
+
+/* ========================================
+   主题样式 - 自定义
+   ======================================== */
+.theme-custom {
+    font-family: var(--custom-font, -apple-system, BlinkMacSystemFont, sans-serif);
+    color: var(--custom-text-color, #1a1a1a);
+    background: var(--custom-bg-color, #ffffff);
+    padding: var(--custom-padding, 48px);
+}
+
+.theme-custom h1 {
+    font-size: var(--custom-h1-size, 28px);
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 0 0 24px 0;
+    color: var(--custom-h1-color, #1a1a1a);
+}
+
+.theme-custom h2 {
+    font-size: var(--custom-h2-size, 22px);
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 36px 0 16px 0;
+    color: var(--custom-h2-color, #333333);
+}
+
+.theme-custom h3 {
+    font-size: var(--custom-h3-size, 18px);
+    font-weight: 600;
+    margin: 24px 0 12px 0;
+    color: var(--custom-h2-color, #333333);
+}
+
+.theme-custom p {
+    font-size: var(--custom-body-size, 16px);
+    line-height: var(--custom-line-height, 1.8);
+    margin: 0 0 18px 0;
+    text-align: var(--custom-align, justify);
+}
+
+.theme-custom blockquote {
+    margin: 24px 0;
+    padding: 20px 24px;
+    background: var(--custom-quote-bg, #F5F6F7);
+    border-left: 4px solid var(--custom-accent-color, #07C160);
+    border-radius: 0 8px 8px 0;
+}
+
+.theme-custom a {
+    color: var(--custom-accent-color, #07C160);
+    text-decoration: none;
+}
+
+.theme-custom ul, .theme-custom ol {
+    margin: calc(var(--custom-line-height, 1.8) * 8px) 0;
+    padding-left: 28px;
+}
+
+.theme-custom li {
+    font-size: var(--custom-body-size, 16px);
+    line-height: var(--custom-line-height, 1.8);
+    margin: 8px 0;
+    color: var(--custom-text-color, #333333);
+}
+
+.theme-custom table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: calc(var(--custom-body-size, 16px) * 0.9);
+}
+
+.theme-custom th, .theme-custom td {
+    padding: 12px 16px;
+    border: 1px solid rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+.theme-custom th {
+    background: var(--custom-accent-color, #07C160);
+    color: white;
+    font-weight: 600;
+}
+
+.theme-custom tr:nth-child(even) {
+    background: var(--custom-quote-bg, #F5F6F7);
+}
+
+.theme-custom p code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: var(--custom-quote-bg, #F5F6F7);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--custom-accent-color, #07C160);
+}
+
+.theme-custom pre {
+    background: #1a1a1a;
+    color: #E2E8F0;
+    border-radius: 10px;
+    padding: 22px;
+    overflow-x: auto;
+    margin: 22px 0;
+}
+
+.theme-custom img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.theme-custom hr {
+    border: none;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    margin: 32px 0;
+}
+
+/* ========================================
+   图片网格
+   ======================================== */
+.image-grid {
+    display: grid;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.image-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.image-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.image-grid img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* ========================================
+   滚动条
+   ======================================== */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 5px;
+    border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+/* 预览区滚动条 */
+.preview-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.preview-container::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+}
+
+.preview-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--bg-tertiary);
+}
+
+/* ========================================
+   响应式
+   ======================================== */
+@media (max-width: 1024px) {
+    .workspace {
+        flex-direction: column;
+    }
+    
+    .editor-pane {
+        border-right: none;
+        border-bottom: 1px solid var(--border-default);
+        height: 50%;
+    }
+    
+    .preview-pane {
+        height: 50%;
+    }
+    
+    .preview-content {
+        padding: 32px;
+    }
+    
+    .theme-menu {
+        width: 340px;
+    }
+    
+    .theme-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .toolbar {
+        padding: 0 var(--space-3);
+    }
+    
+    .brand-tagline,
+    .tool-btn span {
+        display: none;
+    }
+    
+    .theme-menu {
+        width: calc(100vw - 32px);
+        left: 16px;
+        right: 16px;
+        transform: translateY(-10px);
+    }
+    
+    .theme-menu.show {
+        transform: translateY(0);
+    }
+    
+    .theme-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .drawer {
+        width: 100%;
+    }
+    
+    .line-numbers {
+        display: none;
+    }
+    
+    .preview-content {
+        padding: 24px;
+    }
+}
+
+/* ========================================
+   焦点样式
+   ======================================== */
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* 选中文字 */
+::selection {
+    background: var(--accent-dim);
+    color: var(--accent);
+}
