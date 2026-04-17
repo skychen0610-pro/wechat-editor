@@ -889,7 +889,8 @@ const CopyManager = {
             'word-break:break-word',
         ].join(';');
 
-        // 方案：将十六进制颜色转换为 RGB 格式（微信兼容性更好）
+        // 方案：使用 table 布局（微信兼容性最好）
+        // table 的 bgcolor 属性在微信编辑器中通常能正确显示
         const hexToRgb = (hex) => {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
@@ -897,27 +898,26 @@ const CopyManager = {
         
         const rgbBgColor = hexToRgb(bgColor);
         
-        // 外层包装器设置背景色，内层内容不设置背景色（避免间隙）
-        const wrapperStyle = `display:block;width:100%;max-width:677px;margin:0 auto;padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background-color:${rgbBgColor};`;
+        // table 样式
+        const tableStyle = `width:100%;max-width:677px;background-color:${rgbBgColor};border-collapse:collapse;margin:0 auto;`;
+        const cellStyle = `padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background-color:${rgbBgColor};`;
         
         // 获取内联后的内容
         let contentHtml = inlined.innerHTML;
         
-        // 移除所有子元素的背景色，让外层包装器统一控制背景
+        // 移除所有子元素的背景色
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = contentHtml;
         
         const removeBgFromAll = (element) => {
             if (element.nodeType === Node.ELEMENT_NODE) {
                 const currentStyle = element.getAttribute('style') || '';
-                // 移除 background-color，保留其他样式
                 const cleanStyle = currentStyle.replace(/background-color:[^;]+;?/gi, '');
                 if (cleanStyle.trim()) {
                     element.setAttribute('style', cleanStyle);
                 } else {
                     element.removeAttribute('style');
                 }
-                // 递归处理子元素
                 Array.from(element.children).forEach(removeBgFromAll);
             }
         };
@@ -925,7 +925,8 @@ const CopyManager = {
         Array.from(tempDiv.children).forEach(removeBgFromAll);
         contentHtml = tempDiv.innerHTML;
         
-        return `<div style="${wrapperStyle}">${contentHtml}</div>`;
+        // 使用 table 布局，同时设置 style 和 bgcolor 属性
+        return `<table style="${tableStyle}" width="100%" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td style="${cellStyle}">${contentHtml}</td></tr></tbody></table>`;
     },
 
     async copyToWechat() {
