@@ -889,8 +889,7 @@ const CopyManager = {
             'word-break:break-word',
         ].join(';');
 
-        // 方案：使用 table 布局（微信兼容性最好）
-        // table 的 bgcolor 属性在微信编辑器中通常能正确显示
+        // 方案：使用 pre 标签包裹（微信对 pre 的背景色支持最好）
         const hexToRgb = (hex) => {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
@@ -898,9 +897,8 @@ const CopyManager = {
         
         const rgbBgColor = hexToRgb(bgColor);
         
-        // table 样式
-        const tableStyle = `width:100%;max-width:677px;background-color:${rgbBgColor};border-collapse:collapse;margin:0 auto;`;
-        const cellStyle = `padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background-color:${rgbBgColor};`;
+        // pre 标签样式 - 微信编辑器对 pre 的背景色支持最好
+        const preStyle = `display:block;width:100%;max-width:677px;margin:0 auto;padding:24px;font-family:${cs.getPropertyValue('font-family')};font-size:${cs.getPropertyValue('font-size')};color:${cs.getPropertyValue('color')};line-height:${cs.getPropertyValue('line-height')};word-break:break-word;background-color:${rgbBgColor};border:none;border-radius:0;white-space:normal;`;
         
         // 获取内联后的内容
         let contentHtml = inlined.innerHTML;
@@ -925,8 +923,8 @@ const CopyManager = {
         Array.from(tempDiv.children).forEach(removeBgFromAll);
         contentHtml = tempDiv.innerHTML;
         
-        // 使用 table 布局，同时设置 style 和 bgcolor 属性
-        return `<table style="${tableStyle}" width="100%" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td style="${cellStyle}">${contentHtml}</td></tr></tbody></table>`;
+        // 使用 pre 标签包裹内容
+        return `<pre style="${preStyle}">${contentHtml}</pre>`;
     },
 
     async copyToWechat() {
