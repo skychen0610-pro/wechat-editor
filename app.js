@@ -777,6 +777,59 @@ const CopyManager = {
     },
 
     /**
+     * 获取当前主题的背景色
+     * 从 CSS 变量或主题类中读取
+     */
+    getThemeBackgroundColor() {
+        const previewEl = document.getElementById('preview');
+        const themeClass = Array.from(previewEl.classList).find(c => c.startsWith('theme-'));
+        
+        // 主题背景色映射表
+        const themeBackgrounds = {
+            'theme-default': '#ffffff',
+            'theme-latepost': '#faf9f7',
+            'theme-tech': '#0F172A',
+            'theme-elegant': '#ffffff',
+            'theme-deep': '#1a1a1a',
+            'theme-ft': '#fffbf5',
+            'theme-nyt': '#ffffff',
+            'theme-guardian': '#f6f6f6',
+            'theme-nikkei': '#ffffff',
+            'theme-lemonde': '#fafafa',
+            'theme-claude': '#faf8f5',
+            'theme-medium': '#ffffff',
+            'theme-apple': '#f5f5f7',
+            'theme-jonyive': '#fafafa',
+            'theme-kenya': '#fefefe',
+            'theme-hische': '#fffbf0',
+            'theme-ando': '#f5f5f3',
+            'theme-gaudi': '#faf8f5',
+            'theme-burnt': '#FDF8F3',
+        };
+        
+        if (themeClass && themeBackgrounds[themeClass]) {
+            return themeBackgrounds[themeClass];
+        }
+        
+        // 回退：尝试从计算样式读取
+        const cs = window.getComputedStyle(previewEl);
+        let bgColor = cs.getPropertyValue('background-color');
+        
+        if (!bgColor || bgColor === 'transparent' || bgColor === 'rgba(0, 0, 0, 0)') {
+            // 尝试从 background 简写中提取
+            const bgValue = cs.getPropertyValue('background');
+            const bgMatch = bgValue.match(/(rgb|rgba|#)[^\s,)]+/);
+            if (bgMatch) {
+                bgColor = bgMatch[0];
+            }
+        }
+        
+        return bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)' 
+            ? bgColor 
+            : '#ffffff';
+    },
+
+    /**
      * 生成适合微信公众号的 HTML
      * - 包装容器带基础字体/颜色
      * - 所有子元素样式内联
@@ -790,25 +843,8 @@ const CopyManager = {
         // 获取容器自身的计算样式作为包装器基础样式
         const cs = window.getComputedStyle(previewEl);
         
-        // 处理背景色：优先使用 background（简写），因为它可能包含渐变或更具体的值
-        // 如果 background 是 none 或透明，则使用 background-color
-        let bgValue = cs.getPropertyValue('background');
-        let bgColor = cs.getPropertyValue('background-color');
-        
-        // 微信编辑器对 background 简写支持不好，优先使用 background-color
-        // 但如果 background-color 是 transparent 或 rgba(0,0,0,0)，尝试从 background 解析
-        if (!bgColor || bgColor === 'transparent' || bgColor === 'rgba(0, 0, 0, 0)') {
-            // 尝试从 background 值中提取颜色
-            const bgMatch = bgValue.match(/(rgb|rgba|#)[^\s]+/);
-            if (bgMatch) {
-                bgColor = bgMatch[0];
-            }
-        }
-        
-        // 确保有有效的背景色值
-        if (!bgColor || bgColor === 'transparent' || bgColor === 'rgba(0, 0, 0, 0)') {
-            bgColor = '#ffffff'; // 默认白色
-        }
+        // 获取主题背景色（优先从映射表读取，确保深色主题正确）
+        const bgColor = this.getThemeBackgroundColor();
         
         const wrapStyle = [
             `font-family:${cs.getPropertyValue('font-family')}`,
