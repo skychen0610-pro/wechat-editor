@@ -689,7 +689,7 @@ const CopyManager = {
     INLINE_PROPS: [
         'font-family', 'font-size', 'font-weight', 'font-style',
         'line-height', 'text-align', 'text-decoration',
-        'color', 'background-color', 'background',
+        'color', 'background-color', 'background', 'background-image',
         'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
         'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
         'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
@@ -789,12 +789,33 @@ const CopyManager = {
 
         // 获取容器自身的计算样式作为包装器基础样式
         const cs = window.getComputedStyle(previewEl);
+        
+        // 处理背景色：优先使用 background（简写），因为它可能包含渐变或更具体的值
+        // 如果 background 是 none 或透明，则使用 background-color
+        let bgValue = cs.getPropertyValue('background');
+        let bgColor = cs.getPropertyValue('background-color');
+        
+        // 微信编辑器对 background 简写支持不好，优先使用 background-color
+        // 但如果 background-color 是 transparent 或 rgba(0,0,0,0)，尝试从 background 解析
+        if (!bgColor || bgColor === 'transparent' || bgColor === 'rgba(0, 0, 0, 0)') {
+            // 尝试从 background 值中提取颜色
+            const bgMatch = bgValue.match(/(rgb|rgba|#)[^\s]+/);
+            if (bgMatch) {
+                bgColor = bgMatch[0];
+            }
+        }
+        
+        // 确保有有效的背景色值
+        if (!bgColor || bgColor === 'transparent' || bgColor === 'rgba(0, 0, 0, 0)') {
+            bgColor = '#ffffff'; // 默认白色
+        }
+        
         const wrapStyle = [
             `font-family:${cs.getPropertyValue('font-family')}`,
             `font-size:${cs.getPropertyValue('font-size')}`,
             `color:${cs.getPropertyValue('color')}`,
             `line-height:${cs.getPropertyValue('line-height')}`,
-            `background-color:${cs.getPropertyValue('background-color')}`,
+            `background-color:${bgColor}`,
             'max-width:677px',
             'margin:0 auto',
             'padding:24px',
